@@ -21,24 +21,38 @@ export default class Container extends Component{
 		this.state = {
 			x: 0,
 			y: 0,
-			tile: new Tile(),
-			grid: new Grid(),
+			value: 0,
+			tiles: [],
 		}
 	}
 	componentWillMount() {
 		this._panResponder = PanResponder.create({
 			onStartShouldSetPanResponder: this._startShouldSetResponder,
+			onStartShouldSetResponderCapture: this._startShouldSetResponderCapture,
 			onMoveShouldSetPanResponder: this._moveShouldSetResonder,
+			onResponderTerminationRequest: this._responderTerminationRequest,
+			onMoveShouldSetPanResponderCapture: this._moveShouldSetResonderCapture,
 			onPanResponderGrant: this._panResponderGrant,
 			onPanResponderMove: this._panResponderMove,
 			onPanResponderRelease: this._panResponderRelease.bind(this),
 		})
 		this.moving = false;
+		this.initializeGame();
+	
 	}
 	_startShouldSetResponder(e: Object, gestureState: Object): boolean {
 		return true;
 	}
-	_moveShouldSetResponder(e: Object, gestureState: Object): boolean {
+	_moveShouldSetResonder(e: Object, gestureState: Object): boolean {
+		return true;
+	}
+	_startShouldSetResponderCapture(e: Object, gestureState: Object): boolean {
+		return true;
+	}
+	_responderTerminationRequest(e: Object, gestureState: Object): boolean {
+		return true;
+	}	
+	_moveShouldSetResonderCapture(e: Object, gestureState: Object): boolean {
 		return true;
 	}
 	_panResponderGrant(e: Object, gestureState: Object) {
@@ -48,7 +62,6 @@ export default class Container extends Component{
 	_panResponderMove(e: Object, gestureState: Object) {
 
 	}
-
 	_panResponderRelease(e: Object, gestureState: Object) {
 		var dx = gestureState.dx;
 		var dy = gestureState.dy;
@@ -61,7 +74,36 @@ export default class Container extends Component{
 			x: dx,
 			y: dy,
 		});
+		console.log('container');
 	}
+	initializeGame() {
+		this.grid = new Grid();
+		var tile_1 = this.createTile();
+		this.insertTile(tile_1);
+		this.grid.pushData(tile_1);
+		var tile_2 = this.createTile();
+		this.insertTile(tile_2);
+		this.grid.pushData(tile_2);
+
+	}
+
+	createTile() {
+		var value = Math.random() > 0.8 ? 4 : 2;
+		var position = this.grid.randomCreate();
+		var tile = new Tile(position, value);
+		return tile;
+	}
+
+	insertTile(tile) {
+		var tiles = this.state.tiles;
+		tiles.push(tile);
+		this.setState({
+			tiles: tiles
+		})
+	}
+
+
+
 
 	render() {
 		var x  = this.state.x;
@@ -71,7 +113,7 @@ export default class Container extends Component{
 				<Text>{x}</Text><Text>{y}</Text>
 				<Heading></Heading>
 				<Nav></Nav>
-				<Box></Box>
+				<Box tiles={this.state.tiles}></Box>
 			</View>
 		)
 	}

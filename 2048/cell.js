@@ -29,7 +29,6 @@ var styles = StyleSheet.create({
 	cell: {
 		flex: 1,
 		borderRadius: 4,
-		width: (width - 200)/4,
 		margin: 4,
 		backgroundColor: 'rgba(238, 228, 218, 0.5)',
 	}

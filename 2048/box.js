@@ -7,7 +7,8 @@ import {
 
 } from 'react-native';
 
-import Row from './row.js';
+import Layout from './layout.js';
+import Data from './data'
 
 export default class Box extends Component{
 	constructor(props) {
@@ -16,13 +17,14 @@ export default class Box extends Component{
 
 		}
 	}
+	componentWillMount() {
+		//console.log(this.props.tiles);
+	}
 	render() {
 		return(
 			<View style={styles.box}>
-				<Row></Row>
-				<Row></Row>
-				<Row></Row>
-				<Row></Row>
+				<Data tiles={this.props.tiles} style={styles.data}></Data>
+		             NNB		<Layout style={styles.layout}></Layout>
 			</View>
 		)
 	}
@@ -39,4 +41,5 @@ var styles = StyleSheet.create({
 		marginTop: 30,
 		marginLeft: 20,
 	},
+
 })

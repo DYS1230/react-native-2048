@@ -1,9 +1,10 @@
-import React, {Component} from 'react';
+import React, {ReactDOM, Component} from 'react';
 import {
 	StyleSheet,
 	Text,
 	View,
-	Dimensions
+	Dimensions,
+	
 
 } from 'react-native';
 
@@ -16,10 +17,14 @@ export default class Box extends Component{
 
 		}
 	}
+	componentDidMount() {
+		
+		
+	}
 	render() {
 		return(
 			<View style={styles.row}>
-				<Cell></Cell>
+				<Cell ref={(circle) => { this.circle = circle; }}></Cell>
 				<Cell></Cell>
 				<Cell></Cell>
 				<Cell></Cell>
@@ -35,14 +40,6 @@ var styles = StyleSheet.create({
 		flex: 1,
 		flexDirection: 'row',
 		justifyContent: 'space-between',
-		paddingLeft: 4,
-		paddingRight: 4,
+		padding: 1,
 	},
-	cell: {
-		flex: 1,
-		borderRadius: 4,
-		width: (width - 200)/4,
-		margin: 4,
-		backgroundColor: 'rgba(238, 228, 218, 0.5)',
-	}
 })
