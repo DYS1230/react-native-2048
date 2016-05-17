@@ -18,7 +18,7 @@ export default class Layout extends Component{
 		}
 	}
 	render() {
-		return(
+		return (
 			<View style={styles.layout}>
 				<Row></Row>
 				<Row></Row>

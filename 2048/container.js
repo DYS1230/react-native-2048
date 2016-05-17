@@ -15,7 +15,7 @@ import Box from './box';
 import Tile from './tile';
 import Grid from './grid';
 
-export default class Container extends Component{
+export default class Container extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -28,10 +28,7 @@ export default class Container extends Component{
 	componentWillMount() {
 		this._panResponder = PanResponder.create({
 			onStartShouldSetPanResponder: this._startShouldSetResponder,
-			onStartShouldSetResponderCapture: this._startShouldSetResponderCapture,
 			onMoveShouldSetPanResponder: this._moveShouldSetResonder,
-			onResponderTerminationRequest: this._responderTerminationRequest,
-			onMoveShouldSetPanResponderCapture: this._moveShouldSetResonderCapture,
 			onPanResponderGrant: this._panResponderGrant,
 			onPanResponderMove: this._panResponderMove,
 			onPanResponderRelease: this._panResponderRelease.bind(this),
@@ -44,15 +41,6 @@ export default class Container extends Component{
 		return true;
 	}
 	_moveShouldSetResonder(e: Object, gestureState: Object): boolean {
-		return true;
-	}
-	_startShouldSetResponderCapture(e: Object, gestureState: Object): boolean {
-		return true;
-	}
-	_responderTerminationRequest(e: Object, gestureState: Object): boolean {
-		return true;
-	}	
-	_moveShouldSetResonderCapture(e: Object, gestureState: Object): boolean {
 		return true;
 	}
 	_panResponderGrant(e: Object, gestureState: Object) {
@@ -75,16 +63,20 @@ export default class Container extends Component{
 			y: dy,
 		});
 		console.log('container');
+		console.log(this.grid.cells);
+		if(canMove) {
+			this.moveTile();
+		}
 	}
 	initializeGame() {
 		this.grid = new Grid();
+		this.grid.initialize();
 		var tile_1 = this.createTile();
 		this.insertTile(tile_1);
-		this.grid.pushData(tile_1);
+		this.grid.addData(tile_1);
 		var tile_2 = this.createTile();
 		this.insertTile(tile_2);
-		this.grid.pushData(tile_2);
-
+		this.grid.addData(tile_2);
 	}
 
 	createTile() {
@@ -96,6 +88,7 @@ export default class Container extends Component{
 
 	insertTile(tile) {
 		var tiles = this.state.tiles;
+		tile.x = 0; tile.y = 0;
 		tiles.push(tile);
 		this.setState({
 			tiles: tiles
@@ -103,12 +96,125 @@ export default class Container extends Component{
 	}
 
 
+	moveTile() {
+		var cells = this.grid.cells;
+		
+	//	console.log(cells);
+	//	console.log(cells);
+	//	console.log(this.grid.getAvailbleCell());
 
+
+
+
+		
+		for(var i = 0; i < 1; i++) {
+			var previousAvailableTile = null;
+			var previousBlankTile = [];
+			console.log(cells);
+			for(var j = 3; j >= 0; j--) {
+			//	console.log(previousAvailableTile);
+			//	console.log(previousBlankTile);
+				if(!cells[i][j]) {
+				//	if(previousBlankTile) {
+				//		continue;
+				//	} else {
+						var obj = {};
+						obj.x = j;
+						obj.y = i;
+						previousBlankTile.push(obj);
+						console.log(previousBlankTile);
+					//	this.grid.deleteData(previousTile);
+					//	previousTile.x = j;
+					//	previousTile.y = i;
+					//	this.grid.addData(previousTile);
+				//	}
+				}else {
+
+					if( previousAvailableTile && previousAvailableTile.value == cells[i][j]) {
+						console.log('1111');
+							var deleteTile = {};
+							deleteTile.x = j;
+							deleteTile.y = i;
+							deleteTile.value = null;
+						//	this.grid.deleteData(deleteTile);
+
+							var blankTile = {};
+							blankTile.x = j;
+							blankTile.y = i;
+							previousBlankTile.push(blankTile);
+
+							var addTile = {};
+							addTile.x = previousAvailableTile.x;
+							addTile.y = previousAvailableTile.y;
+							addTile.value = Number(previousAvailableTile.value) * 2;
+							console.log(addTile.value);
+							this.grid.addData(addTile);							
+
+							previousAvailableTile = null;
+
+					} else {
+						if(previousBlankTile.length > 0) {
+						
+							var position = previousBlankTile.shift();
+							//console.log(position);
+							
+							var deleteTile = {};
+							deleteTile.x = j;
+							deleteTile.y = i;
+							deleteTile.value = null;
+						//	this.grid.addData(deleteTile);
+							
+							var blankTile = {};
+							blankTile.x = j;
+							blankTile.y = i;
+							previousBlankTile.push(blankTile);
+							
+							var addTile = {};
+							addTile.x = position.x;
+							addTile.y = position.y;
+							addTile.value = cells[i][j];
+							this.grid.addData(addTile);
+					//		console.log(addTile);
+					//		console.log(this.grid.cells);
+							var previousAvailableTile = {};
+							previousAvailableTile.x = position.x;
+							previousAvailableTile.y = position.y;
+							previousAvailableTile.value = cells[i][j];
+							
+
+						} else {
+							var previousAvailableTile = {};
+							previousAvailableTile.x = j;
+							previousAvailableTile.y = i;
+							previousAvailableTile.value = cells[i][j];
+							console.log(previousAvailableTile);
+						}
+					}
+				}
+			}
+		}
+	
+
+	//	console.log(this.grid.cells);
+	//	console.log(this.grid.getAvailbleCell());
+
+		this.changeTile();
+
+	}
+
+
+	changeTile() {
+		var tiles = this.grid.getAvailbleCell();
+	//	console.log(tiles);
+		this.setState({
+			tiles: tiles
+		});
+	}
 
 	render() {
 		var x  = this.state.x;
 		var y = this.state.y;
-		return(
+		return (
 			<View {...this._panResponder.panHandlers} style={[styles.flex, styles.container]}>
 				<Text>{x}</Text><Text>{y}</Text>
 				<Heading></Heading>

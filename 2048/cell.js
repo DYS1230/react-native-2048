@@ -16,7 +16,7 @@ export default class Cell extends Component{
 		}
 	}
 	render() {
-		return(
+		return (
 			<View style={styles.cell}>
 			</View>
 		)

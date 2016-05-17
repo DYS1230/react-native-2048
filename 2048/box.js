@@ -21,10 +21,10 @@ export default class Box extends Component{
 		//console.log(this.props.tiles);
 	}
 	render() {
-		return(
+		return (
 			<View style={styles.box}>
 				<Data tiles={this.props.tiles} style={styles.data}></Data>
-		             NNB		<Layout style={styles.layout}></Layout>
+		             		<Layout style={styles.layout}></Layout>
 			</View>
 		)
 	}

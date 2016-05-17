@@ -22,7 +22,7 @@ export default class Box extends Component{
 		
 	}
 	render() {
-		return(
+		return (
 			<View style={styles.row}>
 				<Cell ref={(circle) => { this.circle = circle; }}></Cell>
 				<Cell></Cell>
