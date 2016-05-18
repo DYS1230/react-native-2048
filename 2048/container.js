@@ -63,10 +63,10 @@ export default class Container extends Component {
 			y: dy,
 		});
 		console.log('container');
-		console.log(this.grid.cells);
-		if(canMove) {
+	//	console.log(this.grid.cells);
+	//	if(canMove) {
 			this.moveTile();
-		}
+	//	}
 	}
 	initializeGame() {
 		this.grid = new Grid();
@@ -88,106 +88,102 @@ export default class Container extends Component {
 
 	insertTile(tile) {
 		var tiles = this.state.tiles;
-		tile.x = 0; tile.y = 0;
+	
 		tiles.push(tile);
 		this.setState({
 			tiles: tiles
 		})
 	}
 
+	getType(array) {
+			return (Object.prototype.toString.call(array).slice(8, -1).toLowerCase());
+	};
+
+	cloneArray(source) {
+		var destination = [];
+			for(var i in source) {
+				if ( this.getType(source[i]) == 'array' ) {
+					destination[i] = this.cloneArray(source[i]);		
+				} else {
+					destination[i] = source[i];
+				}
+		}
+		return destination;
+	}
 
 	moveTile() {
-		var cells = this.grid.cells;
-		
+		//var cells = this.grid.cells;   
+		//注意　grid也像state一样，是动态变化的，如果先deleteData，再addData，会先把数据删除，再也得不到data了
+		//fuck，一直没注意，这里是引用，而不是复制
+		console.log(this.grid.cells);
+		var cells = this.cloneArray(this.grid.cells);
+	//	console.log(this.grid.cells);
 	//	console.log(cells);
 	//	console.log(cells);
 	//	console.log(this.grid.getAvailbleCell());
 
-
+		console.log(cells);
 
 
 		
-		for(var i = 0; i < 1; i++) {
+		for(var i = 0; i < 4; i++) {
 			var previousAvailableTile = null;
 			var previousBlankTile = [];
-			console.log(cells);
+			
 			for(var j = 3; j >= 0; j--) {
-			//	console.log(previousAvailableTile);
-			//	console.log(previousBlankTile);
+
+			//	console.log(j,i,previousBlankTile);
 				if(!cells[i][j]) {
-				//	if(previousBlankTile) {
-				//		continue;
-				//	} else {
-						var obj = {};
-						obj.x = j;
-						obj.y = i;
-						previousBlankTile.push(obj);
-						console.log(previousBlankTile);
-					//	this.grid.deleteData(previousTile);
-					//	previousTile.x = j;
-					//	previousTile.y = i;
-					//	this.grid.addData(previousTile);
-				//	}
+
+					var obj = {};
+					obj.x = j;
+					obj.y = i;
+					previousBlankTile.push(obj);
+			
 				}else {
-
+					
 					if( previousAvailableTile && previousAvailableTile.value == cells[i][j]) {
-						console.log('1111');
-							var deleteTile = {};
-							deleteTile.x = j;
-							deleteTile.y = i;
-							deleteTile.value = null;
-						//	this.grid.deleteData(deleteTile);
+	
+						var x = previousAvailableTile.x;
+						var y = previousAvailableTile.y;
+						cells[y][x] = Number(cells[i][j]) * 2;
 
-							var blankTile = {};
-							blankTile.x = j;
-							blankTile.y = i;
-							previousBlankTile.push(blankTile);
+						cells[i][j] = null;
 
-							var addTile = {};
-							addTile.x = previousAvailableTile.x;
-							addTile.y = previousAvailableTile.y;
-							addTile.value = Number(previousAvailableTile.value) * 2;
-							console.log(addTile.value);
-							this.grid.addData(addTile);							
+						var blankTile = {};
+						blankTile.x = j;
+						blankTile.y = i;
+						previousBlankTile.push(blankTile);						
 
-							previousAvailableTile = null;
+						previousAvailableTile = null;
 
 					} else {
 						if(previousBlankTile.length > 0) {
 						
 							var position = previousBlankTile.shift();
-							//console.log(position);
+
+							var x= position.x;
+							var y = position.y;
 							
-							var deleteTile = {};
-							deleteTile.x = j;
-							deleteTile.y = i;
-							deleteTile.value = null;
-						//	this.grid.addData(deleteTile);
-							
+							cells[x][y] = cells[i][j];
+							cells[i][j] = null;
+
+							var previousAvailableTile = {};
+							previousAvailableTile.x = position.x;
+							previousAvailableTile.y = position.y;
+							previousAvailableTile.value = cells[i][j];	
+
 							var blankTile = {};
 							blankTile.x = j;
 							blankTile.y = i;
 							previousBlankTile.push(blankTile);
-							
-							var addTile = {};
-							addTile.x = position.x;
-							addTile.y = position.y;
-							addTile.value = cells[i][j];
-							this.grid.addData(addTile);
-					//		console.log(addTile);
-					//		console.log(this.grid.cells);
-							var previousAvailableTile = {};
-							previousAvailableTile.x = position.x;
-							previousAvailableTile.y = position.y;
-							previousAvailableTile.value = cells[i][j];
-							
 
 						} else {
 							var previousAvailableTile = {};
 							previousAvailableTile.x = j;
 							previousAvailableTile.y = i;
 							previousAvailableTile.value = cells[i][j];
-							console.log(previousAvailableTile);
+		
 						}
 					}
 				}
@@ -198,13 +194,34 @@ export default class Container extends Component {
 	//	console.log(this.grid.cells);
 	//	console.log(this.grid.getAvailbleCell());
 
-		this.changeTile();
+		var blankCell = [];
+		for(var i = 0; i < 4; i++) {
+			for(var j = 0; j < 4; j++) {
+				if( !cells[i][j] ) {
+					var obj = {};
+					obj.x = j;
+					obj.y = i;
+					blankCell.push(obj);
+				}
+			}
+		}
+		var value = Math.random() > 0.8 ? 4 : 2;
+		var randomNumber = Math.random() * blankCell.length;
+		var accurateNumber = Math.floor(randomNumber);
+		var tempX = blankCell[accurateNumber].x;
+		var tempY = blankCell[accurateNumber].y;
+		cells[tempY][tempX] = value;
+			
 
+		this.grid.cells = cells;
+		this.changeTile();
 	}
 
 
 	changeTile() {
 		var tiles = this.grid.getAvailbleCell();
+	//	var newTile = this.createTile();
+	//	tiles.push(newTile);
 	//	console.log(tiles);
 		this.setState({
 			tiles: tiles
