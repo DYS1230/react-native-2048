@@ -1,9 +1,8 @@
 var Grid = function() {
-	this.cells = this.initialize();
-	this.blankCell = this.getBlankCell();
+	this.cells = this.initializeGrid();
 }
 
-Grid.prototype.initialize = function() {
+Grid.prototype.initializeGrid = function() {
 	var cell = [];
 	for(var i = 0; i< 4; i++) {
 		var row = [];
@@ -15,73 +14,81 @@ Grid.prototype.initialize = function() {
 	return cell;
 }
 
-Grid.prototype.addData = function(tile) {
-	var x = tile.x;
-	var y = tile.y;
-	var value = tile.value;
-	this.cells[y][x] = value; 
-} 
-
-Grid.prototype.deleteData = function(tile) {
-	var x = tile.x;
-	var y = tile.y;
-	this.cells[y][x] = null;
+Grid.prototype.initialize = function() {
+	this.randomCreateTile();
+	this.randomCreateTile();
+/*
+ 	var tile_1 = {};
+ 	tile_1.x = 0;
+ 	tile_1.y = 0;
+ 	tile_1.value = 2;
+ 	this.insertTile(tile_1); 	
+ 	var tile_2 = {};
+ 	tile_2.x = 1;
+ 	tile_2.y = 0;
+ 	tile_2.value = 2;
+ 	this.insertTile(tile_2);
+ */
 }
 
 
-
-Grid.prototype.compareData = function(tile_1, tile_2) {
-	if(tile_1.value == tile_2.data) {
-		deleteData(tile_1);
-		addData(tile_2);
-		return true;
-	}else {
-		return false;
-	}
-}
-
-Grid.prototype.getBlankCell = function() {
-	var blankCell = [];
+Grid.prototype.getBlankRowCell = function() {
+	var blankRowCell = [];
 	for(var i = 0; i < 4; i++) {
+		var row = [];
 		for(var j = 0; j < 4; j++) {
 			if( !this.cells[i][j] ) {
 				var obj = {};
 				obj.x = j;
 				obj.y = i;
-				blankCell.push(obj);
+				row.push(obj);
 			}
 		}
+		blankRowCell.push(row);
 	}
-	return blankCell;
+
+	return blankRowCell;
 }
 
-Grid.prototype.getAvailbleCell = function() {
-	var availableCell = [];
+Grid.prototype.getBlankWholeCell = function() {
+	var cell = this.getBlankRowCell();
+	var blankWholeCell = [];
+	for(var i = 0; i < cell.length; i++) {
+		if(cell[i].length > 0) {
+			// null 不能这么做　blankWholeCell = blankWholeCell.concat( cell[i].join('.').split('.') );
+			blankWholeCell = blankWholeCell.concat( cell[i] );
+		}
+	}
+	return blankWholeCell;
+}
+
+Grid.prototype.getAvailbleRowCell = function() {
+	var availableRowCell = [];
 	for(var i = 0; i < 4; i++) {
+		var row = [];
 		for(var j = 0; j < 4; j++) {
 			if( this.cells[i][j] ) {
 				var obj = {};
 				obj.x = j;
 				obj.y = i;
 				obj.value = this.cells[i][j];
-				availableCell.push(obj);
+				row.push(obj);
 			}
 		}
+		availableRowCell.push(row);
 	}
-	return availableCell;
+	return availableRowCell;
 }
 
-//  ??????
-
-Grid.prototype.getRowBlankCell = function(rowNumber) {
-	var rowBlankCell = [];
+Grid.prototype.getAvailbleWholeCell = function() {
+	var cell = this.getAvailbleRowCell();
+	var availbleWholeCell = [];
 	for(var i = 0; i < 4; i++) {
-		if( !this.cells[rowNumber][i] ) {
-			var obj = {};
-			obj.x = i;
-
+		if(cell[i].length > 0) {
+			availbleWholeCell = availbleWholeCell.concat( cell[i] );
 		}
 	}
+	return availbleWholeCell;
 }
 
 Grid.prototype.available = function() {
@@ -102,13 +109,27 @@ Grid.prototype.available = function() {
 	return false;
 }
 
-Grid.prototype.randomCreate = function() {
-	var blankCell = this.getBlankCell();
+
+Grid.prototype.randomCreateTile = function() {
+	var blankCell = this.getBlankWholeCell();
 	var randomNumber = Math.random() * blankCell.length;
 	var accurateNumber = Math.floor(randomNumber);
-	return blankCell[accurateNumber];
+	var tile = blankCell[accurateNumber];
+
+	tile.value = Math.random() > 0.6 ? 4 : 2;
+	this.insertTile(tile);
 }
 
+Grid.prototype.insertTile = function(tile) {
+	var x = tile.x;
+	var y = tile.y;
+	this.cells[y][x] = tile.value;
+}
 
+Grid.prototype.deleteTile = function(tile) {
+	var x = tile.x;
+	var y = tile.y;
+	this.cells[y][x] = null;
+}
 
 export default Grid;

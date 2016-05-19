@@ -71,25 +71,11 @@ export default class Container extends Component {
 	initializeGame() {
 		this.grid = new Grid();
 		this.grid.initialize();
-		var tile_1 = this.createTile();
-		this.insertTile(tile_1);
-		this.grid.addData(tile_1);
-		var tile_2 = this.createTile();
-		this.insertTile(tile_2);
-		this.grid.addData(tile_2);
+		this.changeTile();
 	}
 
-	createTile() {
-		var value = Math.random() > 0.8 ? 4 : 2;
-		var position = this.grid.randomCreate();
-		var tile = new Tile(position, value);
-		return tile;
-	}
-
-	insertTile(tile) {
-		var tiles = this.state.tiles;
-	
-		tiles.push(tile);
+	changeTile() {
+		var tiles = this.grid.getAvailbleWholeCell();
 		this.setState({
 			tiles: tiles
 		})
@@ -107,78 +93,115 @@ export default class Container extends Component {
 				} else {
 					destination[i] = source[i];
 				}
-		}
+			}
 		return destination;
 	}
 
-	moveTile() {
-		//var cells = this.grid.cells;   
-		//注意　grid也像state一样，是动态变化的，如果先deleteData，再addData，会先把数据删除，再也得不到data了
-		//fuck，一直没注意，这里是引用，而不是复制
-		console.log(this.grid.cells);
-		var cells = this.cloneArray(this.grid.cells);
-	//	console.log(this.grid.cells);
-	//	console.log(cells);
-	//	console.log(cells);
-	//	console.log(this.grid.getAvailbleCell());
-
-		console.log(cells);
-
-
-		
+	getBlankRowCell(cells) {
+		var blankRowCell = [];
 		for(var i = 0; i < 4; i++) {
-			var previousAvailableTile = null;
-			var previousBlankTile = [];
-			
-			for(var j = 3; j >= 0; j--) {
-
-			//	console.log(j,i,previousBlankTile);
-				if(!cells[i][j]) {
-
+			var row = [];
+			for(var j = 0; j < 4; j++) {
+				if( !cells[i][j] ) {
 					var obj = {};
 					obj.x = j;
 					obj.y = i;
-					previousBlankTile.push(obj);
+					row.push(obj);
+				}
+			}
+			blankRowCell.push(row);
+		}
+		return blankRowCell;		
+	}
+
+	moveTile() {
+
+		//var cells = this.grid.cells;   
+		//注意　grid也像state一样，是动态变化的，如果先deleteData，再addData，会先把数据删除，再也得不到data了
+		//fuck，一直没注意，这里是引用，而不是复制
+		console.log('1');
+		var cells = this.cloneArray(this.grid.cells);
+	//	var blankRow = this.grid.getBlankRowCell(); //可能有问题，确实不合格，验证了grid的动态变化
+	//	var blankRow = this.getBlankRowCell(cells); //这也不行，他是拖后的显示
+		var blankRow = [];
+		for(var i = 0; i < 4; i++) {
+			var row = [];
+			for(var j = 0; j < 4; j++) {
+				if( !cells[i][j] ) {
+					row.push(j);
+				}
+			}
+			blankRow.push(row);
+		}
+
+
+	//	console.log(this.grid.cells);
+	//	console.log(cells);
+	//	console.log(blankRow);
+		for(var i = 0; i < 4; i++) {
+			var previousAvailableTile = null;
+		//	console.log(blankRow[i]);
+			var previousBlankTile = blankRow[i].concat();　　//这里出现问题
+		//	console.log(previousBlankTile);
+			for(var j = 3; j >= 0; j--) {
+
+				if(!cells[i][j]) {
+
+					
 			
 				}else {
-					
-					if( previousAvailableTile && previousAvailableTile.value == cells[i][j]) {
-	
+				//	console.log(!!previousAvailableTile);
+				//	if(!!previousAvailableTile) {
+				//		console.log(previousAvailableTile.value);
+				//		console.log(cells[i][j]);
+				//		console.log(Number(previousAvailableTile.value) == Number(cells[i][j]));
+				//	}
+				//	console.log(cells[i][j]);
+
+					if( !!previousAvailableTile && Number(previousAvailableTile.value) == Number(cells[i][j]) )  {
+						console.log('有相等')
 						var x = previousAvailableTile.x;
 						var y = previousAvailableTile.y;
+						this.grid.insertTile({x: x, y: y, value: Number(cells[i][j]) * 2});
 						cells[y][x] = Number(cells[i][j]) * 2;
 
+						this.grid.deleteTile({x: j, y: i});
 						cells[i][j] = null;
 
-						var blankTile = {};
-						blankTile.x = j;
-						blankTile.y = i;
-						previousBlankTile.push(blankTile);						
+						var blankTileX = j;
+						previousBlankTile.push(blankTileX);						
 
 						previousAvailableTile = null;
 
 					} else {
-						if(previousBlankTile.length > 0) {
-						
-							var position = previousBlankTile.shift();
+						if(previousBlankTile.length > 0 && Math.max.apply(null, previousBlankTile) > j) {
+							if(cells[i][j] == 2) {
+								console.log('值为２');
+								console.log(previousBlankTile);
+							}
 
-							var x= position.x;
-							var y = position.y;
-							
-							cells[x][y] = cells[i][j];
-							cells[i][j] = null;
+
+							var positionX = Math.max.apply(null, previousBlankTile);
+
+							previousBlankTile.splice(previousBlankTile.indexOf(positionX), 1);
+						
+							previousBlankTile.push(j);
+
+							var tile = {};
+							tile.x = positionX;
+							tile.y = i;
+							tile.value = cells[i][j];
+							this.grid.insertTile(tile);
+							this.grid.deleteTile({x: j, y: i});
 
 							var previousAvailableTile = {};
-							previousAvailableTile.x = position.x;
-							previousAvailableTile.y = position.y;
+							previousAvailableTile.x = positionX;
+							previousAvailableTile.y = i;
 							previousAvailableTile.value = cells[i][j];	
 
-							var blankTile = {};
-							blankTile.x = j;
-							blankTile.y = i;
-							previousBlankTile.push(blankTile);
 
 						} else {
+
 							var previousAvailableTile = {};
 							previousAvailableTile.x = j;
 							previousAvailableTile.y = i;
@@ -193,40 +216,9 @@ export default class Container extends Component {
 
 	//	console.log(this.grid.cells);
 	//	console.log(this.grid.getAvailbleCell());
-
-		var blankCell = [];
-		for(var i = 0; i < 4; i++) {
-			for(var j = 0; j < 4; j++) {
-				if( !cells[i][j] ) {
-					var obj = {};
-					obj.x = j;
-					obj.y = i;
-					blankCell.push(obj);
-				}
-			}
-		}
-		var value = Math.random() > 0.8 ? 4 : 2;
-		var randomNumber = Math.random() * blankCell.length;
-		var accurateNumber = Math.floor(randomNumber);
-		var tempX = blankCell[accurateNumber].x;
-		var tempY = blankCell[accurateNumber].y;
-		cells[tempY][tempX] = value;
-			
-
-		this.grid.cells = cells;
+		this.grid.randomCreateTile();
 		this.changeTile();
-	}
-
-
-	changeTile() {
-		var tiles = this.grid.getAvailbleCell();
-	//	var newTile = this.createTile();
-	//	tiles.push(newTile);
-	//	console.log(tiles);
-		this.setState({
-			tiles: tiles
-		});
-	}
+	} 
 
 	render() {
 		var x  = this.state.x;
