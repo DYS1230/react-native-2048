@@ -23,11 +23,11 @@ export default class Heading extends Component{
 				<View style={styles.btnGroup}>
 					<View style={styles.btn}>
 						<Text style={styles.title}>SCORE</Text>
-						<Text style={styles.score}>0</Text>
+						<Text style={styles.score}>{this.props.score}</Text>
 					</View>
 					<View style={styles.btn}>
 						<Text style={styles.title}>BEST</Text>
-						<Text style={styles.score}>0</Text>
+						<Text style={styles.score}>{this.props.score}</Text>
 					</View>
 				</View>
 			</View>
